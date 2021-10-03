@@ -31,14 +31,36 @@ public class CarSummaryPage extends BaseUtils {
     @FindBy(xpath = "//a[contains(text(),'Get a Full Check')]")
     private WebElement getFullCheckButton;
 
+    @FindBy(xpath = "//button[contains(text(),'Free Car Check')]")
+    private WebElement getFreeCarCheckButton;
+
     @FindBy(xpath = "//button[contains(text(),'Check Vehicle')]")
     private WebElement checkValuationButton;
+
+    /*Full Car Check Page*/
+
+    @FindBy(xpath = "//dt[contains(text(),'Registration')]/following-sibling::dd")
+    private WebElement getFullVehicleRegistrationNumber;
+
+    @FindBy(xpath = "//dt[contains(text(),'Vehicle')]/following-sibling::dd")
+    private WebElement getFullVehicleMakeModel;
+
+    @FindBy(xpath = "//dt[contains(text(),'Year')]/following-sibling::dd")
+    private WebElement getFullVehicleYear;
+
+    @FindBy(xpath = "//dt[contains(text(),'Colour')]/following-sibling::dd")
+    private WebElement getFullVehicleColor;
+
+    /*Free Car Check Page*/
 
     @FindBy(xpath = "//dt[contains(text(),'Registration')]/following-sibling::dd")
     private WebElement getVehicleRegistrationNumber;
 
-    @FindBy(xpath = "//dt[contains(text(),'Vehicle')]/following-sibling::dd")
-    private WebElement getVehicleMakeModel;
+    @FindBy(xpath = "//dt[contains(text(),'Make')]/following-sibling::dd")
+    private WebElement getVehicleMake;
+
+    @FindBy(xpath = "//dt[contains(text(),'Model')]/following-sibling::dd")
+    private WebElement getVehicleModel;
 
     @FindBy(xpath = "//dt[contains(text(),'Year')]/following-sibling::dd")
     private WebElement getVehicleYear;
@@ -50,13 +72,28 @@ public class CarSummaryPage extends BaseUtils {
     private WebElement payButton;
 
     @Test
-    private void searchCarDetailsFromWebsite(String carReg){
+    private void searchGetFullCarCheckFromWebsite(String carReg){
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         homeImage.click();
         vrm_input.clear();
         vrm_input.sendKeys(carReg);
         getFullCheckButton.click();
         checkValuationButton.click();
+        try{
+            Thread.sleep(2000);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    private void searchGetFreeCarCheckFromWebsite(String carReg){
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        homeImage.click();
+        vrm_input.clear();
+        vrm_input.sendKeys(carReg);
+        getFreeCarCheckButton.click();
         try{
             Thread.sleep(2000);
         }
@@ -74,13 +111,15 @@ public class CarSummaryPage extends BaseUtils {
         CSVWriter csvWriterNotMatched =new CSVWriter(new FileWriter(notMatchedFile, true));
         String[] outputRecordFound = searchRegInOutputFile.searchCarDetailsOutputFile(eachCarRecord.trim().replace(" ",""));
         if(outputRecordFound!=null){
-            searchCarDetailsFromWebsite(eachCarRecord.trim().replace(" ",""));
+            searchGetFreeCarCheckFromWebsite(eachCarRecord.trim().replace(" ",""));
             String expectedRegNumber =outputRecordFound[0];
-            String expectedMakeModel = outputRecordFound[1] + " " + outputRecordFound[2];
+            String expectedMake = outputRecordFound[1];
+            String expectedModel = outputRecordFound[2];
             String expectedColour = outputRecordFound[3];
             String expectedYear = outputRecordFound[4];
             Assert.assertEquals(expectedRegNumber, getVehicleRegistrationNumber.getText(), "Registration number not matched");
-            Assert.assertEquals(expectedMakeModel, getVehicleMakeModel.getText(), "Make and Model not matched");
+            Assert.assertEquals(expectedMake, getVehicleMake.getText(), "Make not matched");
+            Assert.assertEquals(expectedModel, getVehicleModel.getText(), "Model not matched");
             Assert.assertEquals(expectedColour, getVehicleColor.getText(), "Colour not matched");
             Assert.assertEquals(expectedYear, getVehicleYear.getText(), "Year not matched");
             csvWriterMatched.writeNext(outputRecordFound);
